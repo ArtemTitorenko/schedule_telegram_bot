@@ -12,6 +12,10 @@ def to_camel_case(string: str) -> str:
         tmp.append(word.capitalize())
     return ''.join(tmp)
 
+#################
+# schedule users
+################
+
 
 class Student(BaseModel):
     user: User
@@ -22,6 +26,11 @@ class Student(BaseModel):
 class Teacher(BaseModel):
     user: User
     code: str
+
+
+################
+# schedule
+################
 
 
 class Day(BaseModel):
@@ -40,14 +49,52 @@ class Week(BaseModel):
     days: typing.List[Day]
 
 
+class TeacherParse(BaseModel):
+    code: str
+    first_name: str
+    last_name: str
+    patronymic: str
+
+    class Config:
+        fields = {'code': 'id'}
+        alias_generator = to_camel_case
+
+
+class Course(BaseModel):
+    id: int
+    name: str
+
+
+class Room(BaseModel):
+    id: int
+    number: str
+
+
+class Group(BaseModel):
+    id: int
+    code: str
+    faculty_id: int
+
+    class Config:
+        fields = {
+            'faculty_id': 'facultyId'
+        }
+
+
 class Lesson(BaseModel):
     type: str
     is_canceled: bool
     is_moved: bool
-    rooms: typing.List[str]
-    course_name: str
+    weekday_number: int
     time_chunks: typing.List[str]
-    teachers: typing.List[str]
+    course: Course
+    teachers: typing.List[TeacherParse]
+    groups: typing.List[Group]
+    division_name: str
+
+    class Config:
+        fields = {'weekday_number': 'weekDayNumber'}
+        alias_generator = to_camel_case
 
 
 class DaySchedule(BaseModel):
