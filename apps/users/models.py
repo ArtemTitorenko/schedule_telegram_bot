@@ -9,10 +9,11 @@ class Role(str, Enum):
 
 
 class User(BaseModel):
-    telegram_id: int
+    # telegram_id
+    id: int
     first_name: str
     role: Role
     is_admin: bool = False
     last_name: str = None
-    user_name: str = None
+    username: str = None
 
