@@ -6,12 +6,84 @@ import typing
 from pydantic import BaseModel
 from pydantic import parse_obj_as
 
-#from ..models import Faculty, Group, Specialization
+from ..models import Faculty, Group, Specialization
 from ..models import Day, Week, Lesson, DaySchedule, WeekSchedule
 
 
 DATE_FORMAT = '%d-%m-%Y'
 API_URL = 'https://lk.gubkin.ru/schedule/api/api.php'
+
+
+async def get_faculties() -> typing.List[Faculty]:
+    params = {
+        'act': 'list',
+        'method': 'getFaculties',
+    }
+    json_response = await _get_json_response(params)
+    return parse_obj_as(typing.List[Faculty], json_response['rows'])
+
+
+async def get_faculty_by_id(faculty_id: int) -> Faculty:
+    faculties = await get_faculties()
+    for faculty in faculties:
+        if faculty.id == faculty_id:
+            return faculty
+
+
+async def get_group_specializations(
+        group_id: int) -> typing.List[Specialization]:
+    params = {
+        'act': 'list',
+        'method': 'getGroupSpecializations',
+        'groupId': str(group_id),
+    }
+    json_response = await _get_json_response(params)
+    # характерность API
+    if not json_response['rows'][0]['code']:
+        return []
+    specializations = parse_obj_as(typing.List[Specialization],
+                                   json_response['rows'])
+    return specializations
+
+
+async def get_faculty_groups(faculty_id: int) -> typing.List[Group]:
+    params = {
+        'act': 'list',
+        'method': 'getFacultyGroups',
+        'facultyId': str(faculty_id),
+    }
+    json_response = await _get_json_response(params)
+    groups = parse_obj_as(typing.List[Group], json_response['rows'])
+    for group in groups:
+        group.faculty_id = faculty_id
+    return groups
+
+
+async def get_groups() -> typing.List[Group]:
+    all_groups = []
+    faculties = await get_faculties()
+    for faculty in faculties:
+        faculty_groups = await get_faculty_groups(faculty.id)
+        all_groups.extend(faculty_groups)
+    return all_groups
+
+
+async def get_group_by_code(code: str) -> typing.Union[None, Group]:
+    code = code.lower()
+    faculties = await get_faculties()
+    for faculty in sorted(faculties,
+                          key=lambda faculty: abs(ord(faculty.name.lower()[0]) - ord(code[0]))):
+        faculty_groups = await get_faculty_groups(faculty.id)
+        for group in faculty_groups:
+            if group.code.lower() == code:
+                return group
+
+
+async def get_group_by_id(group_id: int) -> Group:
+    groups = await get_groups()
+    for group in groups:
+        if group.id == group_id:
+            return group
 
 
 async def get_group_week_schedule(group_id: int,

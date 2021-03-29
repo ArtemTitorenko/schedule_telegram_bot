@@ -2,7 +2,7 @@ import datetime
 import typing
 
 from apps.users.models import User
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, conint
 
 
 def to_camel_case(string: str) -> str:
@@ -70,7 +70,7 @@ class Room(BaseModel):
     number: str
 
 
-class Group(BaseModel):
+class GroupParse(BaseModel):
     id: int
     code: str
     faculty_id: int
@@ -89,7 +89,7 @@ class Lesson(BaseModel):
     time_chunks: typing.List[str]
     course: Course
     teachers: typing.List[TeacherParse]
-    groups: typing.List[Group]
+    groups: typing.List[GroupParse]
     division_name: str
 
     class Config:
@@ -104,4 +104,22 @@ class DaySchedule(BaseModel):
 class WeekSchedule(BaseModel):
     week: Week
     schedule: typing.List[DaySchedule]
+
+
+class Specialization(BaseModel):
+    id: int
+    name: str
+    code: str
+
+
+class Group(BaseModel):
+    id: int
+    code: str
+    faculty_id: int = None
+
+
+class Faculty(BaseModel):
+    id: conint(gt=-1)
+    name: str
+    code: str
 
