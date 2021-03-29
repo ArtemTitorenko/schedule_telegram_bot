@@ -4,7 +4,7 @@ from apps.users.models import Role, User
 from apps.users.repository.database import get_user_by_id
 
 from .models import WeekSchedule, Student, Teacher
-from .repository.database import get_teacher_by_id, get_student_by_id
+from .repository import database as db
 from .repository import rest
 
 
@@ -20,13 +20,13 @@ async def get_user_week_schedule(
 
 async def _teacher_schedule_getter(
         user: User, date: datetime.date) -> WeekSchedule:
-    teacher = await get_teacher_by_id(user.id)
+    teacher = await db.get_teacher_by_id(user.id)
     return await get_teacher_week_schedule(teacher, date)
 
 
 async def _student_schedule_getter(
         user: User, date: datetime.date) -> WeekSchedule:
-    student = await get_student_by_id(user.id)
+    student = await db.get_student_by_id(user.id)
     return await get_student_week_schedule(student, date)
 
 
@@ -39,4 +39,10 @@ async def get_student_week_schedule(
 async def get_teacher_week_schedule(
         teacher: Teacher, date: datetime.date) -> WeekSchedule:
     return await rest.get_teacher_week_schedule(teacher.code, date)
+
+
+async def get_group_week_schedule_by_group_code(
+        group_code: str, date: datetime.date) -> WeekSchedule:
+    group = await db.get_group_by_code(group_code)
+    return await rest.get_group_week_schedule(group.id, date)
 
