@@ -119,7 +119,7 @@ class Group(BaseModel):
 
 
 class Faculty(BaseModel):
-    id: conint(gt=-1)
+    id: int
     name: str
     code: str
 
