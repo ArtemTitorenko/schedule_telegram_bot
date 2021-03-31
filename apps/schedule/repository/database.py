@@ -16,7 +16,7 @@ from ..models import Faculty, Group, Specialization
 
 async def get_student_by_id(user_id: int) -> Student:
     student_orm = await StudentOrm.filter(
-            user__id=id, user__role=Role.student).first()
+            user_id=user_id, user__role=Role.student).first()
     if not student_orm:
         return None
     student = await pydantic_student_creator.from_tortoise_orm(
@@ -26,7 +26,7 @@ async def get_student_by_id(user_id: int) -> Student:
 
 async def get_teacher_by_id(user_id: int) -> Teacher:
     teacher_orm = await TeacherOrm.filter(
-            user__id=id, user__role=Role.teacher).first()
+            user__id=user_id, user__role=Role.teacher).first()
     if not teacher_orm:
         return None
     teacher = await pydantic_teacher_creator.from_tortoise_orm(

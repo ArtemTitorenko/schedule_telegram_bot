@@ -11,6 +11,8 @@ from .repository import rest
 async def get_user_week_schedule(
         user_id: int, date: datetime.date) -> WeekSchedule:
     user = await get_user_by_id(user_id)
+    if not user:
+        return
     users_schedule_getters = {
         Role.student: _student_schedule_getter,
         Role.teacher: _teacher_schedule_getter,
